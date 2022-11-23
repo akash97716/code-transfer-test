@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+#
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: pandoc/latex    # "ubuntu" is a more generic container
+                               # using "pandoc/latex" because of dependencies
+                               # used in the specific "build.sh"
+    steps:
+      - name: Install mustache (to update the date in build.sh)
+        run:  apk add ruby && gem install mustache    
+      - name: creates output
+        run:  mkdir output
+      - name: list output
+        run:  ls        
+      - uses: actions/checkout@v2
+
+      - name: Push directory to another repository
+        uses: cpina/github-action-push-to-another-repository@v1.5.1
+
+        env:
+        
+          API_TOKEN_GITHUB: ${{ secrets.GH_PAT }}
+        with:
+          source-directory: .      
+         
+          destination-github-username: 'akash97716'
+          destination-repository-name: 'code-transfer-test'
+          user-email: akash97716@gmail.com
+          target-branch: main

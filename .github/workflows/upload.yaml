@@ -1,0 +1,50 @@
+
+name: testing code transfer
+#
+on:
+  push:
+    branches: [start]
+permissions:
+  id-token: write
+  contents: write
+  repository-projects: write
+  pull-requests: write
+  deployments: write
+jobs:
+  checkBuild:
+    name: build
+    runs-on: [self-hosted, akash]
+    steps:
+    
+    - name: checkout
+      uses: actions/checkout@v2
+    - name: config git
+      working-directory: .
+      run: |
+        git config user.email ${{ github.actor }}@noreply.com
+        git config user.name ${{ github.actor }}
+
+    - name: remove current remote repo
+      run: rm -rf .git      
+    - name: Preparing worktree
+      working-directory: .
+      run: |
+    
+          git clone https://.:${{ secrets.GITHUB_TOKEN }}@github.com/akash97716/test-from-local sm
+          #rm everything but the .git directory
+          #ls 
+          ls sm/*
+          #cp -R utils.py sm/
+          #copy source\files target
+          zip -r plugin_to_deploy.zip sm
+          mv plugin_to_deploy.zip sm/
+          ls -lrt
+          cd sm
+
+          git config user.email ${{ github.actor }}@noreply.com
+          git config user.name ${{ github.actor }}         
+          git add .
+          
+          git diff-index --quiet HEAD || git commit -m "tesing copy"
+          ls -lrt
+          git push --force https://${{ github.actor }}:${{ secrets.GH_PAT }}@github.com/akash97715/sm.git master
